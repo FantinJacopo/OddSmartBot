@@ -19,19 +19,49 @@ public class Scraper {
 
 
     public static void snaiScraper() {
-        // prendo siti dal database faccio snaiPageScraper per ognuno ....
-    }
-
-    public static void snaiPageScraper(String url) {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--remote-allow-origins=*");
+        options.addArguments("--start-maximized");
+        options.addArguments("--disable-blink-features=AutomationControlled"); // Evita rilevamento di headless
+        options.addArguments("--disable-gpu");
+        options.setExperimentalOption("excludeSwitches", List.of("enable-automation")); // Rimuovi flag di automazione
+        options.setExperimentalOption("useAutomationExtension", false); // Disabilita estensioni di automazione
+        //options.addArguments("--headless=new"); // Esegui in background senza GUI (opzionale)
         ChromeDriver driver = new ChromeDriver(options);
+        System.out.println("CHAMPIONS LEAGUE");
+        snaiPageScraper(driver,"https://www.snai.it/sport/calcio/champions%20league");
+        System.out.println("EUROPA LEAGUE");
+        snaiPageScraper(driver,"https://www.snai.it/sport/calcio/europa%20league");
+        System.out.println("CONFERENCE LEAGUE");
+        snaiPageScraper(driver,"https://www.snai.it/sport/calcio/conference%20league");
+        System.out.println("SERIE A");
+        snaiPageScraper(driver, "https://www.snai.it/sport/calcio/serie%20a");
+        System.out.println("PREMIER LEAGUE");
+        snaiPageScraper(driver,"https://www.snai.it/sport/calcio/premier%20league");
+        System.out.println("BUNDESLIGA");
+        snaiPageScraper(driver,"https://www.snai.it/sport/calcio/bundesliga");
+        System.out.println("LA LIGA");
+        snaiPageScraper(driver,"https://www.snai.it/sport/calcio/liga");
+        System.out.println("LEAGUE 1");
+        snaiPageScraper(driver,"https://www.snai.it/sport/calcio/league%201");
 
+
+
+        driver.quit();
+        // prendo siti dal database faccio snaiPageScraper per ogni pagina ....
+    }
+
+    public static void snaiPageScraper(ChromeDriver driver, String url) {
         try {
             driver.get(url); // apre la pagina
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // aspetta che la pagina carichi
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.className(snaiMainTable)));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15)); // aspetta che la pagina carichi
+            try{
+                wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.className(snaiMainTable)));
+            }catch (Exception e){
+                System.out.println("Tabella non trovata - non sono disponibili scommesse per questo campionato");
+                return;
+            }
 
             // Trova tutte le righe delle partite
             List<WebElement> rows = driver.findElements(By.xpath("//div[@class='" + snaiRowClass + "']"));
@@ -63,14 +93,11 @@ public class Scraper {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            driver.quit();
         }
     }
 
     public static void main(String[] args) {
         //System.setProperty("webdriver.chrome.driver", "percorso\fino a\chromedriver.exe");
-        snaiPageScraper("https://www.snai.it/sport/calcio/serie%20a");
-        snaiPageScraper("https://www.snai.it/sport/calcio/europa%20league");
+        snaiScraper();
     }
 }
