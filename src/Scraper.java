@@ -45,8 +45,6 @@ public class Scraper {
         System.out.println("LEAGUE 1");
         snaiPageScraper(driver,"https://www.snai.it/sport/calcio/league%201");
 
-
-
         driver.quit();
         // prendo siti dal database faccio snaiPageScraper per ogni pagina ....
     }
