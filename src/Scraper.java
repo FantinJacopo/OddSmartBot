@@ -6,7 +6,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.List;
+import java.util.*;
 
 public class Scraper {
 
@@ -16,7 +16,9 @@ public class Scraper {
     public static final String snaiTeamClass = "ScommesseTableCompetitors_name__Xn06E";
 
     // variabili eurobet
-
+    public static final String euroBetRowClass = "event-row"; // Classe della riga
+    public static final String euroBetTeamClass = "event-players"; // Classe dei nomi delle squadre
+    public static final String euroBetQuoteClass = "quota-new"; // Classe delle quote
 
     public static void snaiScraper() {
         ChromeOptions options = new ChromeOptions();
@@ -26,9 +28,9 @@ public class Scraper {
         options.addArguments("--disable-gpu");
         options.setExperimentalOption("excludeSwitches", List.of("enable-automation")); // Rimuovi flag di automazione
         options.setExperimentalOption("useAutomationExtension", false); // Disabilita estensioni di automazione
-        //options.addArguments("--headless=new"); // Esegui in background senza GUI (opzionale)
+        //options.addArguments("--headless=new"); // Esegui in background senza GUI (non funziona)
         ChromeDriver driver = new ChromeDriver(options);
-        System.out.println("CHAMPIONS LEAGUE");
+        /*System.out.println("CHAMPIONS LEAGUE");
         snaiPageScraper(driver,"https://www.snai.it/sport/calcio/champions%20league");
         System.out.println("EUROPA LEAGUE");
         snaiPageScraper(driver,"https://www.snai.it/sport/calcio/europa%20league");
@@ -43,8 +45,9 @@ public class Scraper {
         System.out.println("LA LIGA");
         snaiPageScraper(driver,"https://www.snai.it/sport/calcio/liga");
         System.out.println("LEAGUE 1");
-        snaiPageScraper(driver,"https://www.snai.it/sport/calcio/league%201");
-
+        snaiPageScraper(driver,"https://www.snai.it/sport/calcio/league%201");*/
+        System.out.println("EUROBET");
+        euroBetPageScraper(driver, "https://www.eurobet.it/it/scommesse/calcio/it-serie-a/");
         driver.quit();
         // prendo siti dal database faccio snaiPageScraper per ogni pagina ....
     }
@@ -85,6 +88,45 @@ public class Scraper {
                     } else {
                         System.out.println("Errore: info non trovate o pagina non corretta.");
                     }
+                } catch (Exception e) {
+                    System.out.println("Errore nell'estrazione delle informazioni per una partita.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void euroBetPageScraper(ChromeDriver driver, String url) {
+        try {
+            driver.get(url);
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.className(euroBetRowClass)));
+
+            // Trova tutte le righe delle partite
+            List<WebElement> rows = driver.findElements(By.xpath("//div[contains(@class, '" + euroBetRowClass + "')]"));
+
+            for (WebElement row : rows) {
+                try {
+                    // Trova i nomi delle squadre
+                    List<WebElement> teams = row.findElements(By.xpath(".//div[contains(@class, '" + euroBetTeamClass + "')]//a//span"));
+
+                    String homeTeam = teams.get(0).getText().trim();
+                    String awayTeam = teams.get(2).getText().trim();
+
+                    // Trova le quote 1, X, 2
+                    List<WebElement> quotesContainers = row.findElements(By.xpath(".//div[contains(@class, '" + euroBetQuoteClass + "')]//a"));
+
+                    List<Double> quotes = new ArrayList<>();
+                    for (WebElement quote : quotesContainers) {
+                        quotes.add(Double.parseDouble(quote.getText().trim()));
+                    }
+
+                    // Stampa i risultati
+                    System.out.println("Partita: " + homeTeam + " vs " + awayTeam);
+                    System.out.println("Quote 1X2:");
+                    System.out.println("Casa (1): " + quotes.get(0) + " - Pareggio (X): " + quotes.get(1) + " - Trasferta (2): " + quotes.get(2));
                 } catch (Exception e) {
                     System.out.println("Errore nell'estrazione delle informazioni per una partita.");
                 }
