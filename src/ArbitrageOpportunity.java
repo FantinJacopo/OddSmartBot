@@ -37,4 +37,54 @@ public class ArbitrageOpportunity {
     private Timestamp identifiedAt;
 
     // Getters e Setters
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public Match getMatch() {
+        return match;
+    }
+    public void setMatch(Match match) {
+        this.match = match;
+    }
+    public OddType getOddType() {
+        return oddType;
+    }
+    public void setOddType(OddType oddType) {
+        this.oddType = oddType;
+    }
+    public Odd getOdd1() {
+        return odd1;
+    }
+    public void setOdd1(Odd odd1) {
+        this.odd1 = odd1;
+    }
+    public Odd getOdd2() {
+        return odd2;
+    }
+    public void setOdd2(Odd odd2) {
+        this.odd2 = odd2;
+    }
+    public Odd getOdd3() {
+        return odd3;
+    }
+    public void setOdd3(Odd odd3) {
+        this.odd3 = odd3;
+    }
+    public BigDecimal getProfitMargin() {
+        return profitMargin;
+    }
+    public void setProfitMargin(BigDecimal profitMargin) {
+        this.profitMargin = profitMargin;
+    }
+    public Timestamp getIdentifiedAt() {
+        return identifiedAt;
+    }
+    public void setIdentifiedAt(Timestamp identifiedAt) {
+        this.identifiedAt = identifiedAt;
+    }
+
+
 }
