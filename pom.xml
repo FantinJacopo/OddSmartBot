@@ -21,11 +21,11 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.30</version>
         </dependency>
-        <!-- JPA (Java Persistence API) -->
+        <!-- JPA API (javax.persistence) -->
         <dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
-            <version>2.2</version> <!-- Versione JPA -->
+            <version>2.2</version>
         </dependency>
         <!-- Log4j per la gestione dei log di Hibernate -->
         <dependency>
@@ -75,7 +75,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>4.3.12</version>
+                <version>3.11.0</version>
                 <configuration>
                     <source>1.8</source> <!-- Imposta la versione Java -->
                     <target>1.8</target> <!-- Imposta la versione Java -->

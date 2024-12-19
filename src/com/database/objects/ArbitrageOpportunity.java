@@ -1,3 +1,5 @@
+package com.database.objects;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -85,6 +87,4 @@ public class ArbitrageOpportunity {
     public void setIdentifiedAt(Timestamp identifiedAt) {
         this.identifiedAt = identifiedAt;
     }
-
-
 }

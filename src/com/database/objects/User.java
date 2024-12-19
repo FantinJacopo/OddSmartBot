@@ -1,3 +1,5 @@
+package com.database.objects;
+
 import javax.persistence.*;
 
 @Entity

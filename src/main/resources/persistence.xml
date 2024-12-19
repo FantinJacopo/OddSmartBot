@@ -1,0 +1,30 @@
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+             version="2.1">
+    <persistence-unit name="OddSmartBotPU">
+        <class>com.database.objects.ArbitrageOpportunity</class>
+        <class>com.database.objects.Bookmaker</class>
+        <class>com.database.objects.Endpoint</class>
+        <class>com.database.objects.EndpointId</class>
+        <class>com.database.objects.League</class>
+        <class>com.database.objects.Match</class>
+        <class>com.database.objects.Odd</class>
+        <class>com.database.objects.OddType</class>
+        <class>com.database.objects.User</class>
+        <class>com.database.objects.UserFavorites</class>
+        <class>com.database.objects.UserRequest</class>
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect"/>
+            <property name="hibernate.connection.driver_class" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/oddsmartbot"/>
+            <property name="hibernate.connection.username" value="root"/>
+            <property name="hibernate.connection.password" value=""/>
+
+            <!-- Hibernate options -->
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+        </properties>
+    </persistence-unit>
+</persistence>
