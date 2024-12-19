@@ -1,3 +1,5 @@
+import com.oddsmart.database.DataBase;
+import com.scrapers.Snai;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.openqa.selenium.By;
@@ -20,7 +22,27 @@ import com.database.objects.Bookmaker;
 import com.database.objects.Endpoint;
 
 public class Scraper {
-    public static Session session = HibernateUtil.getSession();
+    //public static Session session = HibernateUtil.getSession();
+    static DataBase db = new DataBase("localhost", "oddsmartbot", "root", "");
+    static ChromeOptions options = new ChromeOptions()
+            .addArguments("--remote-allow-origins=*")
+            .addArguments("--start-maximized")
+            .addArguments("--disable-blink-features=AutomationControlled") // Evita rilevamento di headless
+            .addArguments("--disable-gpu")
+            .setExperimentalOption("excludeSwitches", List.of("enable-automation")) // Rimuovi flag di automazione
+            .setExperimentalOption("useAutomationExtension", false); // Disabilita estensioni di automazione
+    static ChromeDriver driver = new ChromeDriver(options);
+
+    public Scraper() {
+        ChromeOptions options = new ChromeOptions()
+                .addArguments("--remote-allow-origins=*")
+                .addArguments("--start-maximized")
+                .addArguments("--disable-blink-features=AutomationControlled") // Evita rilevamento di headless
+                .addArguments("--disable-gpu")
+                .setExperimentalOption("excludeSwitches", List.of("enable-automation")) // Rimuovi flag di automazione
+                .setExperimentalOption("useAutomationExtension", false); // Disabilita estensioni di automazione
+        driver = new ChromeDriver(options);
+    }
 
     // variabili eurobet
     public static final String euroBetRowClass = "event-row"; // Classe della riga
@@ -89,6 +111,7 @@ public class Scraper {
 
     public static void main(String[] args) {
         //System.setProperty("webdriver.chrome.driver", "percorso\fino a\chromedriver.exe");
-        snaiScraper();
+        Snai snai = new Snai(driver, db);
+        snai.scrape();
     }
 }

@@ -24,6 +24,7 @@ public class Match {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "league", nullable = false)
     public League league;
+    public Date date;
 
     // Getters e Setters
 }
