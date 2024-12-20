@@ -1,4 +1,5 @@
 import com.oddsmart.database.DataBase;
+import com.scrapers.EuroBet;
 import com.scrapers.Snai;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -51,67 +52,14 @@ public class Scraper {
     public static final String euroBetQuoteClass = "quota-new"; // Classe delle quote
 
 
-    public static void euroBetPageScraper(ChromeDriver driver, String url) {
-        try {
-            driver.get(url);
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.className(euroBetRowClass)));
-
-            // Trova tutte le righe delle partite
-            List<WebElement> rows = driver.findElements(By.xpath("//div[contains(@class, '" + euroBetRowClass + "')]"));
-
-            for (WebElement row : rows) {
-                try {
-                    List<WebElement> d = row.findElements(By.xpath(".//div[contains(@class, '" + euroBetDateClass + "')]//p"));
-                    if (d.size() >= 2) {
-                        String dateStr = d.get(0).getText().trim();
-                        String timeStr = d.get(1).getText().trim();
-                        try {
-                            Date now = Calendar.getInstance().getTime();
-                            int year = Integer.parseInt(new SimpleDateFormat("yyyy").format(now));
-                            if(now.after(new SimpleDateFormat("dd/MM/yyyy").parse(dateStr + "/" + year))){
-                                year++;
-                            }
-                            dateStr = dateStr + "/" + year;
-
-                            Date date = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(dateStr + " " + timeStr);
-                            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-                            System.out.println("Data e ora del match: " + sdf.format(date));
-                        } catch (ParseException e) {
-                            System.out.println("Errore nel parsing della data e ora.");
-                        }
-                    } else {
-                        System.out.println("Informazioni di data e ora non trovate.");
-                    }
-
-                    List<WebElement> teams = row.findElements(By.xpath(".//div[contains(@class, '" + euroBetTeamClass + "')]//a//span"));
-
-                    String homeTeam = teams.get(0).getText().trim();
-                    String awayTeam = teams.get(2).getText().trim();
-
-                    List<WebElement> quotesContainers = row.findElements(By.xpath(".//div[contains(@class, '" + euroBetQuoteClass + "')]//a"));
-
-                    List<Double> quotes = new ArrayList<>();
-                    for (WebElement quote : quotesContainers) {
-                        quotes.add(Double.parseDouble(quote.getText().trim()));
-                    }
-
-                    System.out.println("Partita: " + homeTeam + " vs " + awayTeam);
-                    System.out.println("Quote 1X2:");
-                    System.out.println("Casa (1): " + quotes.get(0) + " - Pareggio (X): " + quotes.get(1) + " - Trasferta (2): " + quotes.get(2));
-                } catch (Exception e) {
-                    System.out.println("Errore nell'estrazione delle informazioni per una partita.");
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     public static void main(String[] args) {
         //System.setProperty("webdriver.chrome.driver", "percorso\fino a\chromedriver.exe");
         Snai snai = new Snai(driver, db);
         snai.scrape();
+        EuroBet euroBet = new EuroBet(driver, db);
+        euroBet.scrape();
+
+        driver.quit();
     }
 }

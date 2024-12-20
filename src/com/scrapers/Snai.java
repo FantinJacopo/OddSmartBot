@@ -52,24 +52,14 @@ public class Snai implements IScraper {
     @Override
     public void scrape() {
         ArrayList<Pair<Integer, String>> endpoints = dataBase.getBookmakerEndpoints(id);
-        for (Pair<Integer, String> e : endpoints)
-            snaiPageScraper(e.getValue(), e.getKey());
-        driver.quit();
+        if(!endpoints.isEmpty()){
+            for (Pair<Integer, String> e : endpoints)
+                pageScraper(e.getValue(), e.getKey());
+        }else scrape_hard_coded();
     }
 
-    // più veloce perchè non accede al database, però ovviamente meno flessibile, più vulnerabile ai cambiamenti del sito
-    public void scrape_hard_coded(){
-        snaiPageScraper("https://www.snai.it/sport/calcio/champions%20league", 1);
-        snaiPageScraper("https://www.snai.it/sport/calcio/europa%20league", 2);
-        snaiPageScraper("https://www.snai.it/sport/calcio/conference%20league", 3);
-        snaiPageScraper("https://www.snai.it/sport/calcio/serie%20a", 4);
-        snaiPageScraper("https://www.snai.it/sport/calcio/premier%20league", 5);
-        snaiPageScraper("https://www.snai.it/sport/calcio/bundesliga", 6);
-        snaiPageScraper("https://www.snai.it/sport/calcio/liga", 7);
-        snaiPageScraper("https://www.snai.it/sport/calcio/league%201", 8);
-    }
-
-    public void snaiPageScraper(String url, int leagueId) {
+    @Override
+    public void pageScraper(String url, int leagueId) {
         try {
             driver.get(url); // apre la pagina
 
@@ -144,4 +134,16 @@ public class Snai implements IScraper {
         }
     }
 
+
+    // più veloce perchè non accede al database, però ovviamente meno flessibile, più vulnerabile ai cambiamenti del sito
+    public void scrape_hard_coded(){
+        pageScraper("https://www.snai.it/sport/calcio/champions%20league", 1);
+        pageScraper("https://www.snai.it/sport/calcio/europa%20league", 2);
+        pageScraper("https://www.snai.it/sport/calcio/conference%20league", 3);
+        pageScraper("https://www.snai.it/sport/calcio/serie%20a", 4);
+        pageScraper("https://www.snai.it/sport/calcio/premier%20league", 5);
+        pageScraper("https://www.snai.it/sport/calcio/bundesliga", 6);
+        pageScraper("https://www.snai.it/sport/calcio/liga", 7);
+        pageScraper("https://www.snai.it/sport/calcio/league%201", 8);
+    }
 }
