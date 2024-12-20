@@ -1,6 +1,8 @@
 package com.oddsmart.database;
 
 import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Match {
@@ -25,5 +27,15 @@ public class Match {
         this.homeTeam = homeTeam;
         this.awayTeam = awayTeam;
         this.date = date;
+    }
+
+    private String getDate(String format){
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        return sdf.format(date);
+    }
+
+    @Override
+    public String toString() {
+        return "📅 " + getDate("dd/MM/yyyy HH:mm") + " \n" + homeTeam + " 🆚 " + awayTeam;
     }
 }

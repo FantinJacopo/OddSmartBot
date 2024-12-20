@@ -1,16 +1,22 @@
+import com.oddsmart.database.DataBase;
+import java.util.AbstractMap.SimpleEntry;
+
+import com.oddsmart.database.Match;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+import java.util.AbstractMap.SimpleEntry;
 
 import java.util.*;
 
 public class OddSmartBot extends TelegramLongPollingBot {
-
+    DataBase db = new DataBase("localhost", "oddsmartbot", "root", "");
     @Override
     public String getBotUsername() {
         return "OddSmartBot";
@@ -30,33 +36,19 @@ public class OddSmartBot extends TelegramLongPollingBot {
             System.out.println("messaggio: " + messageText + " Id chat: " + chatId);
             switch  (messageText){
                 case "/start":
-                    Dictionary<String, String> commands = new Hashtable<>();
-                    commands.put("/start", "Avvia il bot");
-                    commands.put("/update", "aggiorna i dati");
-                    commands.put("/favorites add", "aggiungi ai preferiti");
-                    commands.put("/favorites remove", "rimuovi dai preferiti");
-                    commands.put("/show + ", "Mostra");
-                    commands.put("/best + 'partita'", "Mostra le migliori offerte per la partita selezionata");
-                    commands.put("/show_arbitrages", "Mostra le opportunità di arbitraggio");
-                    commands.put("/today", "Mostra le partite di oggi");
-                    sendCommandDescription(chatId, "Benvenuto!👋👋\n" +
-                            "Io sono Oddy.\n Sono il tuo assistente personalizzato per la gestione delle scommesse sportive!🏆⚽\n\n" +
-                            "Grazie a me potrai sempre essere aggiornato sulle migliori offerte disponibili!🎯🎯\n\n" +
-                            "Pronto ad iniziare???💸🤑🫰💸\n" +
-                            "Ecco alcuni comandi che potrebbero tornarti utili" +
-                                    "\n👇👇👇👇👇",
-                            commands); ;
+                    Start(chatId);
                     break;
                 case "/update":
                     break;
                 case "/help":
-                    sendOptionsMessage(chatId,"Ecco i comandi disponibili:", new ArrayList<>(List.of("/start", "/update", "/favorites add", "/favorites remove", "/show", "/best", "/show_arbitrages", "/today")));
+                    Help(chatId);
                     break;
                 /*case "/favorites add":
                     break;
                 case "/favorites remove":
                     break;*/
                 case "/show":
+                    Show(chatId);
                     break;
                 case "/best":
                     break;
@@ -64,20 +56,83 @@ public class OddSmartBot extends TelegramLongPollingBot {
                     break;
                 case "/today":
                     break;
-                default:
-                    sendOptionsMessage(chatId, "Seleziona un comando valido", new ArrayList<>(List.of("/start", "/update", "/favorites add", "/favorites remove", "/show", "/best", "/show_arbitrages", "/today")));
-            }
+                }
+        }else if (update.hasCallbackQuery()) {
+            handleCallback(update.getCallbackQuery());
         }
     }
 
+    private void handleCallback(CallbackQuery callbackQuery) {
+        String callbackData = callbackQuery.getData();
+        long chatId = callbackQuery.getMessage().getChatId();
+
+        System.out.println("Callback ricevuto: " + callbackData);
+
+        // Gestisci i vari callback
+        if (callbackData.equals("/help")) {
+            Help(chatId);
+        }else if(callbackData.equals("/start")){
+            Start(chatId);
+        } else if (callbackData.equals("/show")) {
+            Show(chatId);
+        } else if (callbackData.startsWith("/show")) {
+            String[] parts = callbackData.split(" ");
+            String leagueId = parts[1];
+            try {
+                List<Match> matches = db.getLeagueMatches("matches", Integer.parseInt(leagueId));
+                StringBuilder sb = new StringBuilder();
+                for (Match match : matches)
+                    sb.append(match.toString()).append("\n\n");
+                sb.append("\n\n<b>Partite trovate: ").append(matches.size()).append("</b>");
+                sendSimpleMessage(chatId, sb.toString());
+            }catch (NumberFormatException e){
+                sendSimpleMessage(chatId, "Comando non riconosciuto: " + callbackData);
+            }
+
+        } else {
+            sendSimpleMessage(chatId, "Comando non riconosciuto: " + callbackData);
+        }
+    }
+
+    private void Start(long chatId) {
+        sendOptionsMessage(chatId,
+                "Benvenuto!👋👋\n" +
+                        "Mi chiamo Oddy.\n Sono il tuo assistente personalizzato per la gestione delle scommesse sportive!🏆⚽\n\n" +
+                        "Grazie a me potrai sempre essere aggiornato sulle migliori offerte disponibili!🎯🎯\n\n" +
+                        "Pronto ad iniziare???💸🤑🫰💸\n" +
+                        "Ecco alcuni comandi che potrebbero tornarti utili" +
+                        "\n👇👇👇👇👇",
+                "help",
+                new ArrayList<>(List.of(new SimpleEntry<>("", "Mostra i comandi disponibili"))));
+    }
+
+    private void Show(long chatId){
+        ArrayList<SimpleEntry<String,String>> campionati = db.getLeagues("leagues");
+        if(!campionati.isEmpty()){
+            sendOptionsMessage(chatId,"Scegli un campionato:", "show ",campionati);
+        }
+    }
+
+    private void Help(long chatId){
+        sendCommandDescription(chatId,
+                "Ecco alcuni comandi che potrebbero tornarti utili 🤔",
+                new HashMap<>(){
+                    {
+                        put("/start", "Inizia la conversazione 💬");
+                        put("/help", "Mostra i comandi disponibili 📝");
+                        put("/show", "Visualizza i campionati disponibili 🏆");
+                        put("/show_arbitrages", "Visualizza le occasioni di arbitraggio disponibili 💸");
+                        put("/today", "Visualizza le offerte disponibili per oggi ⏰");
+                    }
+                });
+    }
+
     // invia un messaggio con una lista di comandi e descrizioni
-    private void sendCommandDescription(long chatId, String message, Dictionary<String, String> commands) {
+    private void sendCommandDescription(long chatId, String message, HashMap<String, String> commands) {
         StringBuilder messageBuilder = new StringBuilder(message + "\n\n");
 
-        for (Enumeration<String> keys = commands.keys(); keys.hasMoreElements();) {
-            String command = keys.nextElement();
-            String description = commands.get(command);
-            messageBuilder.append(command).append(": ").append(description).append("\n");
+        for (Map.Entry<String, String> entry : commands.entrySet()) {
+            messageBuilder.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
         }
 
         SendMessage s = new SendMessage();
@@ -103,11 +158,11 @@ public class OddSmartBot extends TelegramLongPollingBot {
         }
     }
     // invia un messaggio con le opzioni (pulsanti)
-    private void sendOptionsMessage(long chatId, String message, ArrayList<String> options) {
+    private void sendOptionsMessage(long chatId, String message, String command_prefix, ArrayList<SimpleEntry<String,String>> options) {
         SendMessage s = new SendMessage();
         s.setChatId(String.valueOf(chatId));
         s.setText(message);
-        InlineKeyboardMarkup table = createTable(options);
+        InlineKeyboardMarkup table = createTable(command_prefix, options);
         s.setReplyMarkup(table);
         try {
             execute(s);
@@ -116,18 +171,23 @@ public class OddSmartBot extends TelegramLongPollingBot {
         }
     }
 
-    // crea una tabella con n opzioni. La creo quadrata il più possibile
-    private InlineKeyboardMarkup createTable(ArrayList<String> options) {
+    /**
+     * Crea un markup di tastiera in linea in tabella.
+     *
+     * @param command_prefix prefisso del comando per i dati di callback
+     * @param options lista di coppie contenenti:primo elemento: comando (dato di callback), secondo elemento: testo del pulsante
+     * @return markup di tastiera in linea creato
+     */
+    private InlineKeyboardMarkup createTable(String command_prefix, ArrayList<SimpleEntry<String, String>> options) {
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         int numCols = (int)Math.round(Math.sqrt(options.size()));
         List<List<InlineKeyboardButton>> table = new ArrayList<>();
         List<InlineKeyboardButton> btnRow = new ArrayList<>();
 
         for (int i = 0; i < options.size(); i++) {
-            int row = i / numCols;
             int col = i % numCols;
-            InlineKeyboardButton button = new InlineKeyboardButton(options.get(i).replace("/", ""));
-            button.setCallbackData(options.get(i).replace(" ", "_"));
+            InlineKeyboardButton button = new InlineKeyboardButton(options.get(i).getValue());
+            button.setCallbackData("/" + command_prefix + options.get(i).getKey());
             if(col == 0){
                 btnRow = new ArrayList<>();
             }
@@ -141,6 +201,7 @@ public class OddSmartBot extends TelegramLongPollingBot {
         return keyboard;
     }
 
+    /// fa partire il bot
     public static void main(String[] args) {
         String botToken = System.getenv("TELEGRAM_BOT_TOKEN");
         try {

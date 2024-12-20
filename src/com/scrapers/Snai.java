@@ -28,7 +28,7 @@ public class Snai implements IScraper {
     public static final String TeamClass = "ScommesseTableCompetitors_name__Xn06E";
     public static final String DateClass = "ScommesseTableDateTime_listItem___IUK8";
 
-    public static final int pageLoadingTime = 15;
+    public static final int pageLoadingTime = 5; // con il mio computer bastano 5 secondi, potrebbero servirne di più
 
     public Snai(ChromeDriver driver, DataBase dataBase){
         this.driver = driver;

@@ -3,6 +3,7 @@ package com.oddsmart.database;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -165,6 +166,55 @@ public class DataBase {
         } catch (SQLException e) {
             return false;
         }
+    }
+
+    // Leagues
+    public ArrayList<SimpleEntry<String, String>> getLeagues(String table) {
+        String query = "SELECT id, name FROM " + table;
+        ArrayList<SimpleEntry<String, String>> leagues = new ArrayList<>();
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(query)) {
+            while (rs.next()) {
+                SimpleEntry<String, String> league = new SimpleEntry<>(rs.getString("id"), rs.getString("name"));
+                leagues.add(league);
+            }
+        } catch (SQLException e) {
+            return null;
+        }
+        return leagues;
+    }
+
+    public Integer getLeagueId(String table, String name) {
+        String query = "SELECT id FROM " + table + " WHERE name = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, name);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }else{
+                    return null;
+                }
+            }
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    public ArrayList<Match> getLeagueMatches(String table, int leagueId) {
+        String query = "SELECT DISTINCT * FROM " + table + " WHERE league = ?";
+        ArrayList<Match> matches = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, leagueId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Match match = new Match(rs.getInt("id"), leagueId, rs.getString("home_team"), rs.getString("away_team"), rs.getTimestamp("start_time"));
+                    matches.add(match);
+                }
+            }
+        } catch (SQLException e) {
+            return null;
+        }
+        return matches;
     }
 
 }

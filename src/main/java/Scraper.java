@@ -55,8 +55,8 @@ public class Scraper {
 
     public static void main(String[] args) {
         //System.setProperty("webdriver.chrome.driver", "percorso\fino a\chromedriver.exe");
-        Snai snai = new Snai(driver, db);
-        snai.scrape();
+        /*Snai snai = new Snai(driver, db);
+        snai.scrape();*/
         EuroBet euroBet = new EuroBet(driver, db);
         euroBet.scrape();
 
